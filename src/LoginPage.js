@@ -10,7 +10,7 @@ class LoginPage extends React.Component {
         password: "",
         showError: false,
         response: "",
-        isBlocked:false,
+        blocked: 0
     }
 
     onUsernameChange = (e) => {
@@ -34,24 +34,44 @@ class LoginPage extends React.Component {
         axios.get("http://localhost:8989/sign-in", {
             params: {
                 username: this.state.username,
-                password: this.state.password,
-                isBlocked : this.state.isBlocked
+                password: this.state.password
             }
         })
             .then((response) => {
-                if (response.data && response.data.length > 0) {
+                if (response.data && response.data.length > 1) {
                     const cookies = new Cookies();
                     cookies.set("logged_in", response.data);
                     window.location.reload();
                 } else {
-                    this.setState({
-                        showError: true ,
-                        response : "wrong username or password"
-                    })
+                    if (response.data == 1){
+                        this.setState({
+                            showError: true ,
+                            response : "wrong username"
+                        })
+                    }
+                    else if (response.data == 2){
+                        const count =(this.state.blocked)+1 ;
+                        if (count<5){
+                            this.setState({
+                                showError: true ,
+                                response : "wrong password",
+                                blocked : count
+                            })
+                        }else {
+                            this.setState({
+                                showError: true,
+                                response: "User blocked , please contact the system manager"
+
+                            })
+                        }
+
+                    }
+
                 }
             })
 
     }
+
 
     signUp = (e) => {
         axios.get("http://localhost:8989/create-account", {
@@ -97,9 +117,12 @@ class LoginPage extends React.Component {
         }
         const letterMatch = /^[a-zA-Z]+$/.test(this.state.password);
         const digitMatch = /^[0-9]+$/.test(this.state.password);
-        const hasRequiredDetails = !((this.state.username == "") && (this.state.username.length !=10) && (this.state.username.charAt(0)!=0) && (this.state.username.charAt(1)!=5) )
-            || ((this.state.password == "") && (this.state.password.length<6) && (!letterMatch) && (!digitMatch) );
 
+        const pass=!((this.state.password == "") && (this.state.password.length<6) && (!letterMatch) && (!digitMatch));
+        const name=!((this.state.username == "") && (this.state.username.length !=10) && (this.state.username.charAt(0)!=0) && (this.state.username.charAt(1)!=5));
+        const block= (this.state.blocked<5);
+
+        const hasRequiredDetails= (pass||block)&&block;
         return (
             <div style={{margin: "auto", width: "50%", padding: "10px"}}>
                 <fieldset style={{width: "300px"}}>

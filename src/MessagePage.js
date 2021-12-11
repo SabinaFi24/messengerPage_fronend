@@ -38,14 +38,15 @@ class MessagePage extends React.Component {
         axios.get("http://localhost:8989/remove-message", {
             params: {
                 token: cookies.get("logged_in"),
-                messageId :messageId
+                messageId
 
             }
         })
             .then((response) => {
+
                 const currentMessage = this.state.messages;
                 this.setState({
-                    posts: currentMessage.filter((item) => {
+                    messages: currentMessage.filter((item) => {
                         return item.id != messageId
                     })
                 })
@@ -83,16 +84,14 @@ class MessagePage extends React.Component {
         }
         return (
             <div>
-                <div>
-                    hello
-                </div>
                 {
                     this.state.messages.map(message => {
                         return (
                             <div style={{borderBottom: "1px solid black", padding: "10px", width: "300px"}}>
-                                <i style={{fontSize: "12px"}}>
+                                <i style={{fontSize: "20px"}}>
                                     {message.title}
                                 </i>
+                                <br/>
                                 <i style={{fontSize: "12px"}}>
                                     {message.content}
                                 </i>
@@ -100,12 +99,10 @@ class MessagePage extends React.Component {
                                     {message.username}
                                 </i>
                                 <p style={{fontSize: "8px"}}>
-                                    {message.date}
+                                    {message.reading_date}
                                 </p>
-                                <button style={{fontSize: "5px"}} onClick={() => this.removeMessage(message.id)}>
-                                    X
-                                </button>
-                                <button style={{fontSize: "5px"}} onClick={() => this.markAsRead(message.id)}>read</button>
+                                <button style={{fontSize: "10px"}} onClick={() => this.removeMessage(message.messageId)}>Delete</button>
+                                <button style={{fontSize: "10px"}} onClick={() => this.markAsRead(message.messageId)}>read</button>
 
 
                             </div>
