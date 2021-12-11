@@ -10,7 +10,9 @@ class MessagePage extends React.Component {
         username:"",
         title:"",
         content: "",
-        messages: []
+        messages: [],
+        reading_date : false,
+        response: ""
     }
 
     componentDidMount() {
@@ -36,7 +38,8 @@ class MessagePage extends React.Component {
         axios.get("http://localhost:8989/remove-message", {
             params: {
                 token: cookies.get("logged_in"),
-                messageId
+                messageId :messageId
+
             }
         })
             .then((response) => {
@@ -48,8 +51,29 @@ class MessagePage extends React.Component {
                 })
             })
     }
+    markAsRead = (messageId) => {
+        const cookies = new Cookies();
+        axios.get("http://localhost:8989/mark-read", {
+            params: {
+                token: cookies.get("logged_in"),
+                messageId :messageId,
+                reading_date :this.state.reading_date
+            }
+        })
+            .then((response) => {
+                if (response.data) {
+                    this.setState({
+                        reading_date : true,
+                        response : "READ"
+                    })
+                } else {
+                    this.setState({response:"The message has already been read"})
+                }
+            })
+    }
 
     render() {
+
         const buttonStyle = {
             margin: "10px",
             width: "200px",
@@ -59,12 +83,21 @@ class MessagePage extends React.Component {
         }
         return (
             <div>
+                <div>
+                    hello
+                </div>
                 {
                     this.state.messages.map(message => {
                         return (
                             <div style={{borderBottom: "1px solid black", padding: "10px", width: "300px"}}>
                                 <i style={{fontSize: "12px"}}>
+                                    {message.title}
+                                </i>
+                                <i style={{fontSize: "12px"}}>
                                     {message.content}
+                                </i>
+                                <i style={{fontSize: "12px"}}>
+                                    {message.username}
                                 </i>
                                 <p style={{fontSize: "8px"}}>
                                     {message.date}
@@ -72,6 +105,7 @@ class MessagePage extends React.Component {
                                 <button style={{fontSize: "5px"}} onClick={() => this.removeMessage(message.id)}>
                                     X
                                 </button>
+                                <button style={{fontSize: "5px"}} onClick={() => this.markAsRead(message.id)}>read</button>
 
 
                             </div>

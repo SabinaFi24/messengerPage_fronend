@@ -11,7 +11,6 @@ class LoginPage extends React.Component {
         showError: false,
         response: "",
         isBlocked:false,
-        countWrongLogin : 0
     }
 
     onUsernameChange = (e) => {
@@ -35,7 +34,8 @@ class LoginPage extends React.Component {
         axios.get("http://localhost:8989/sign-in", {
             params: {
                 username: this.state.username,
-                password: this.state.password
+                password: this.state.password,
+                isBlocked : this.state.isBlocked
             }
         })
             .then((response) => {
@@ -44,11 +44,9 @@ class LoginPage extends React.Component {
                     cookies.set("logged_in", response.data);
                     window.location.reload();
                 } else {
-                    const a = (this.state.countWrongLogin)+1
                     this.setState({
                         showError: true ,
-                        response : "wrong username or password",
-                        countWrongLogin : a
+                        response : "wrong username or password"
                     })
                 }
             })

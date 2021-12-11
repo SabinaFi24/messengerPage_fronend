@@ -39,19 +39,26 @@ class SendMessagePage extends React.Component {
         axios.get("http://localhost:8989/add-message", {
             params: {
                 token: cookies.get("logged_in"),
+                receiverUsername :this.state.receiverId,
                 title : this.state.title,
                 content: this.state.content
             }
         })
             .then((response) => {
                 if (response.data) {
-                    const currentMessages = this.state.posts;
+                    const currentMessages = this.state.messages;
                     currentMessages.unshift({
+                        receiverUsername :this.state.receiverId,
+                        title : this.state.title,
                         content: this.state.content,
                         date: "Few moments ago..."
                     })
+                    alert("message send")
                     this.setState({
-                        posts: currentMessages
+                        messages: currentMessages,
+                        receiverId:"",
+                        title:"",
+                        content: ""
                     })
                 } else {
                     alert("couldn't send message")
@@ -60,17 +67,12 @@ class SendMessagePage extends React.Component {
     }
 
     render() {
-        const disable = !(this.state.title.length<1 && this.state.content.length<1)
+        const disable = !(this.state.title.length<1 || this.state.content.length<1)
         return (
             <div>
 
                 <div style={{marginTop: "30px"}}>
 
-                     <textarea
-                         onChange={this.onReceiverChange}
-                         value={this.state.receiverId}
-                         placeholder={"Enter addressee"}
-                     /><br/>
                     <textarea
                         onChange={this.onTitleChange}
                         value={this.state.title}
@@ -80,6 +82,11 @@ class SendMessagePage extends React.Component {
                         onChange={this.onContentChange}
                         value={this.state.content}
                         placeholder={"Enter message content"}
+                    /><br/>
+                    <textarea
+                        onChange={this.onReceiverChange}
+                        value={this.state.receiverId}
+                        placeholder={"Enter addressee"}
                     /><br/>
 
                     <button onClick={this.addMessage} disabled={!disable}>Send</button>
