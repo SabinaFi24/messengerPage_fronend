@@ -10,7 +10,8 @@ class LoginPage extends React.Component {
         password: "",
         showError: false,
         response: "",
-        blocked: false
+        validPhoneNumber: "",
+        validStrongPassword: ""
     }
 
     onUsernameChange = (e) => {
@@ -68,24 +69,60 @@ class LoginPage extends React.Component {
 
 
     signUp = () => {
-        axios.get("http://localhost:8989/create-account", {
+        axios.get("http://localhost:8989/doesUserExist", {
             params: {
-                username: this.state.username,
-                password: this.state.password
+                username: this.state.username
             }
         })
             .then((response) => {
-                if (response.data) {
+                if(!response.data){
+                    this.setState(
+                        {validPhoneNumber:"",
+                              validStrongPassword:"",
+                              response:""})
+
+                    let reg = new RegExp(/[0][5][023458]\d{7}/);
+                    const validPhoneNumber = reg.test(this.state.username) && this.state.username.length === 10;
+                    if(!validPhoneNumber){
+                        this.setState(
+                            {validPhoneNumber: "invalid phone number"})}
+
+                    const validStrongPassword = (/[a-zA-Z0-9]/g.test(this.state.password) && /\d/g.test(this.state.password) && 6<= this.state.password.length);
+                    if(!validStrongPassword){
+                        this.setState({
+                            validStrongPassword: "not a strong password, must be at least 6 chars: letters/numbers "})}
+
+                    if(validPhoneNumber && validStrongPassword) {
+                        axios.get("http://localhost:8989/create-account", {
+                            params: {
+                                username: this.state.username,
+                                password: this.state.password
+                            }
+                        })
+                            .then((response) => {
+                                if (response.data) {
+                                    this.setState({
+                                        response: "Your account has been created!",
+                                        validPhoneNumber:"",
+                                        validStrongPassword:"",
+                                        showError: true,
+                                    })
+                                } else {
+                                    this.setState({response: "failed to create an account", showError: true})
+                                }
+                            })
+                    }
+                }
+                else{
                     this.setState({
-                        response: "Your account has been created!"
+                        response : "this phone number is in use"
                     })
-                } else {
-                    this.setState({showError: true, response: "This username is already taken"})
                 }
             })
+
     }
 
-    render() {
+    render(){
 
 
         const inputStyle = {
@@ -109,14 +146,14 @@ class LoginPage extends React.Component {
             borderRadius: "5px",
             marginTop: "20px"
         }
-        const letterMatch = /^[a-zA-Z]+$/.test(this.state.password);
+       /* const letterMatch = /^[a-zA-Z]+$/.test(this.state.password);
         const digitMatch = /^[0-9]+$/.test(this.state.password);
 
         const pass=!((this.state.password === "") && (this.state.password.length<6) && (!letterMatch) && (!digitMatch));
-        const name=!((this.state.username === "") && (this.state.username.length !==10) && (this.state.username.charAt(0)!=="0") && (this.state.username.charAt(1)!=="5"));
+        const name=!((this.state.username === "") && (this.state.username.length !==10) && (this.state.username.charAt(0)!=="0") && (this.state.username.charAt(1)!=="5"));*/
 
 
-        const hasRequiredDetails= (pass||name);
+        const hasRequiredDetails= !(this.state.username === "" || this.state.password === "");
         return (
             <div style={{margin: "auto", width: "50%", padding: "10px"}}>
                 <fieldset style={{width: "300px"}}>
@@ -130,17 +167,14 @@ class LoginPage extends React.Component {
                            onChange={this.onUsernameChange}
                            value={this.state.username}
                            placeholder={"Enter username"}
-                           pattern="05?[0-9]-?[0-9]{7}"
                     />
                     <input style={inputStyle}
                            onChange={this.onPasswordChange}
                            value={this.state.password}
-                           pattern="(?=.*\d)(?=.*[a-zA-Z])(?=.*[0-9]).{6,}"
-
                            placeholder={"Enter password"}
                     />
                     <div>
-                        <button style={buttonStyle} onClick={this.login} disabled={!hasRequiredDetails && this.state.blocked==true} >Login</button>
+                        <button style={buttonStyle} onClick={this.login} disabled={!hasRequiredDetails} >Login</button>
                     </div>
                     <div>
                         <button style={signUpButtonStyle} onClick={this.signUp} disabled={!hasRequiredDetails } >Sign Up</button>
@@ -148,6 +182,8 @@ class LoginPage extends React.Component {
 
                 </fieldset>
                 <div style={{color: "red"}}>{this.state.response}</div>
+                <div style={{color: "red"}}>{this.state.validStrongPassword}</div>
+                <div style={{color: "red"}}>{this.state.validPhoneNumber}</div>
             </div>
         )
     }

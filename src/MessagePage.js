@@ -27,15 +27,21 @@ class MessagePage extends React.Component {
             }
         })
             .then((response) => {
-                this.setState({
-                    messages: response.data
-                })
+                if (response.data && response.data.length > 0) {
+                    this.setState({
+                        messages: response.data
+                    })
+                }else{
+                    this.setState({
+                        response: "no new messages"
+                    })
+                }
             })
     }
 
     removeMessage = (messageId) => {
         //const cookies = new Cookies();
-        console.log("removeMessage")
+        //console.log("removeMessage")
         axios.get("http://localhost:8989/remove-message", {
             params:{
                 messageId : messageId
@@ -50,10 +56,10 @@ class MessagePage extends React.Component {
         })
     }
     markAsRead = (messageId) => {
-        const cookies = new Cookies();
+       // const cookies = new Cookies();
         axios.get("http://localhost:8989/read-message", {
             params: {
-                messageId
+                messageId : messageId
             }
 
         }).then((response) => {
@@ -91,7 +97,7 @@ class MessagePage extends React.Component {
                                 <p style={{fontSize: "8px"}}>
                                     {message.sendDate}
                                 </p>
-                                <button style={{fontSize: "10px"}} onClick={() => this.removeMessage(message.messageId)}>Delete</button>
+                                <button style={{fontSize: "10px"}} onClick={() => this.removeMessage(message.message_id)}>Delete</button>
                                 <button style={{fontSize: "10px"}} onClick={() => this.markAsRead(message.messageId)} disabled={message.isRead===1}>read</button>
 
 
