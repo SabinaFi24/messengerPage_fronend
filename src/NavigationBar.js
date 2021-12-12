@@ -7,14 +7,14 @@ class NavigationBar extends React.Component {
     state = {
         links: [{title: "Profile", path: "/profile"},
             {title: "Messages", path: "/messages"}
-            , {title: "SendMessages", path: "/send"}
+            , {title: "Send Messages", path: "/send"}
 
         ]
     }
 
     logout = () => {
         const cookies = new Cookies();
-        cookies.remove("logged_in");
+        cookies.remove("token");
         window.location.reload();
     }
 

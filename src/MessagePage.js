@@ -7,11 +7,11 @@ import Cookies from "universal-cookie/es6";
 class MessagePage extends React.Component {
     state = {
         token: "",
-        username:"",
+        /*username:"",
         title:"",
-        content: "",
+        content: "",*/
         messages: [],
-        reading_date : false,
+       // reading_date : false,
         response: ""
     }
 
@@ -23,7 +23,7 @@ class MessagePage extends React.Component {
         const cookies = new Cookies();
         axios.get("http://localhost:8989/get-messages", {
             params: {
-                token: cookies.get("logged_in")
+                token: cookies.get("token")
             }
         })
             .then((response) => {
@@ -34,58 +34,47 @@ class MessagePage extends React.Component {
     }
 
     removeMessage = (messageId) => {
-        const cookies = new Cookies();
+        //const cookies = new Cookies();
+        console.log("removeMessage")
         axios.get("http://localhost:8989/remove-message", {
-            params: {
-                token: cookies.get("logged_in"),
-                messageId
-
+            params:{
+                messageId : messageId
+            }
+        }).then((response) =>{
+            if (response) {
+                alert("message hes been removed")
+                window.location.reload();
+            } else {
+                alert( "ERROR")
             }
         })
-            .then((response) => {
-
-                const currentMessage = this.state.messages;
-                this.setState({
-                    messages: currentMessage.filter((item) => {
-                        return item.id != messageId
-                    })
-                })
-            })
     }
     markAsRead = (messageId) => {
         const cookies = new Cookies();
-        axios.get("http://localhost:8989/mark-read", {
+        axios.get("http://localhost:8989/read-message", {
             params: {
-                token: cookies.get("logged_in"),
-                messageId :messageId,
-                reading_date :this.state.reading_date
+                messageId
             }
+
+        }).then((response) => {
+            if (response.data) {
+                window.location.reload();
+            }
+            else {
+                alert( "ERROR")
+            }
+
         })
-            .then((response) => {
-                if (response.data) {
-                    this.setState({
-                        reading_date : true,
-                        response : "READ"
-                    })
-                } else {
-                    this.setState({response:"The message has already been read"})
-                }
-            })
     }
 
     render() {
 
-        const buttonStyle = {
-            margin: "10px",
-            width: "200px",
-            backgroundColor: "light_gray" ,
-            color: "blue",
-            borderRadius: "5px"
-        }
         return (
             <div>
+                {this.state.response}
                 {
-                    this.state.messages.map(message => {
+                            this.state.messages.length >0 &&
+                            this.state.messages.map(message => {
                         return (
                             <div style={{borderBottom: "1px solid black", padding: "10px", width: "300px"}}>
                                 <i style={{fontSize: "20px"}}>
@@ -95,14 +84,15 @@ class MessagePage extends React.Component {
                                 <i style={{fontSize: "12px"}}>
                                     {message.content}
                                 </i>
+                                <br/>
                                 <i style={{fontSize: "12px"}}>
-                                    {message.username}
+                                    {message.senderId}
                                 </i>
                                 <p style={{fontSize: "8px"}}>
-                                    {message.reading_date}
+                                    {message.sendDate}
                                 </p>
                                 <button style={{fontSize: "10px"}} onClick={() => this.removeMessage(message.messageId)}>Delete</button>
-                                <button style={{fontSize: "10px"}} onClick={() => this.markAsRead(message.messageId)}>read</button>
+                                <button style={{fontSize: "10px"}} onClick={() => this.markAsRead(message.messageId)} disabled={message.isRead===1}>read</button>
 
 
                             </div>

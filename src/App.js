@@ -13,15 +13,13 @@ class App extends React.Component {
 
     state = {
         isLoggedIn: false,
-        token : ""
     }
 
     componentDidMount() {
         const cookies = new Cookies();
-        if (cookies.get("logged_in")) {
+        if (cookies.get("token") && (cookies.get("token").length>0)) {
             this.setState({
                 isLoggedIn: true,
-                token : cookies.get("logged_in")
             })
         }
     }

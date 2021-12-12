@@ -10,7 +10,7 @@ class LoginPage extends React.Component {
         password: "",
         showError: false,
         response: "",
-        blocked: 0
+        blocked: false
     }
 
     onUsernameChange = (e) => {
@@ -38,42 +38,36 @@ class LoginPage extends React.Component {
             }
         })
             .then((response) => {
-                if (response.data && response.data.length > 1) {
-                    const cookies = new Cookies();
-                    cookies.set("logged_in", response.data);
-                    window.location.reload();
-                } else {
-                    if (response.data == 1){
-                        this.setState({
-                            showError: true ,
-                            response : "wrong username"
-                        })
-                    }
-                    else if (response.data == 2){
-                        const count =(this.state.blocked)+1 ;
-                        if (count<5){
-                            this.setState({
-                                showError: true ,
-                                response : "wrong password",
-                                blocked : count
-                            })
-                        }else {
-                            this.setState({
-                                showError: true,
-                                response: "User blocked , please contact the system manager"
+                switch (response.data){
+                    case "wrongUserName":
+                        this.setState({showError: true});
+                        alert("Username not exist");
+                        break;
+                    case "wrongPassword":
+                        this.setState({showError: true});
+                        alert("Wrong password");
+                        break;
+                    case "userLocked":
+                        this.setState(
+                            {showError: true,
+                                    blocked: true});
+                        alert("User blocked , please contact the system manager");
+                        break;
+                    default:
+                        const cookies = new Cookies();
+                        cookies.set("token", response.data);
+                        window.location.reload();
 
-                            })
-                        }
 
-                    }
 
                 }
+
             })
 
     }
 
 
-    signUp = (e) => {
+    signUp = () => {
         axios.get("http://localhost:8989/create-account", {
             params: {
                 username: this.state.username,
@@ -118,11 +112,11 @@ class LoginPage extends React.Component {
         const letterMatch = /^[a-zA-Z]+$/.test(this.state.password);
         const digitMatch = /^[0-9]+$/.test(this.state.password);
 
-        const pass=!((this.state.password == "") && (this.state.password.length<6) && (!letterMatch) && (!digitMatch));
-        const name=!((this.state.username == "") && (this.state.username.length !=10) && (this.state.username.charAt(0)!=0) && (this.state.username.charAt(1)!=5));
-        const block= (this.state.blocked<5);
+        const pass=!((this.state.password === "") && (this.state.password.length<6) && (!letterMatch) && (!digitMatch));
+        const name=!((this.state.username === "") && (this.state.username.length !==10) && (this.state.username.charAt(0)!=="0") && (this.state.username.charAt(1)!=="5"));
 
-        const hasRequiredDetails= (pass||block)&&block;
+
+        const hasRequiredDetails= (pass||name);
         return (
             <div style={{margin: "auto", width: "50%", padding: "10px"}}>
                 <fieldset style={{width: "300px"}}>
@@ -146,10 +140,10 @@ class LoginPage extends React.Component {
                            placeholder={"Enter password"}
                     />
                     <div>
-                        <button style={buttonStyle} onClick={this.login} disabled={!hasRequiredDetails} >Login</button>
+                        <button style={buttonStyle} onClick={this.login} disabled={!hasRequiredDetails && this.state.blocked==true} >Login</button>
                     </div>
                     <div>
-                        <button style={signUpButtonStyle} onClick={this.signUp} disabled={!hasRequiredDetails} >Sign Up</button>
+                        <button style={signUpButtonStyle} onClick={this.signUp} disabled={!hasRequiredDetails } >Sign Up</button>
                     </div>
 
                 </fieldset>

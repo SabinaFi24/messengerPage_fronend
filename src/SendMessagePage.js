@@ -38,7 +38,7 @@ class SendMessagePage extends React.Component {
         const cookies = new Cookies();
         axios.get("http://localhost:8989/add-message", {
             params: {
-                token: cookies.get("logged_in"),
+                token: cookies.get("token"),
                 receiverUsername :this.state.receiverId,
                 title : this.state.title,
                 content: this.state.content
@@ -51,7 +51,8 @@ class SendMessagePage extends React.Component {
                         receiverUsername :this.state.receiverId,
                         title : this.state.title,
                         content: this.state.content,
-                        date: "Few moments ago..."
+                        date: "Few moments ago...",
+                        senderId : this.state.token
                     })
                     alert("message send")
                     this.setState({
