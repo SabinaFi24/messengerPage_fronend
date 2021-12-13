@@ -40,6 +40,7 @@ class MessagePage extends React.Component {
     }
 
     removeMessage = (messageId) => {
+        console.log(messageId)
         //const cookies = new Cookies();
         //console.log("removeMessage")
         axios.get("http://localhost:8989/remove-message", {
@@ -97,8 +98,8 @@ class MessagePage extends React.Component {
                                 <p style={{fontSize: "8px"}}>
                                     {message.sendDate}
                                 </p>
-                                <button style={{fontSize: "10px"}} onClick={() => this.removeMessage(message.message_id)}>Delete</button>
-                                <button style={{fontSize: "10px"}} onClick={() => this.markAsRead(message.messageId)} disabled={message.isRead===1}>read</button>
+                                <button style={{fontSize: "10px"}} onClick={() => this.removeMessage(message.messageId)}>Delete</button>
+                                <button style={{fontSize: "10px"}} onClick={() => this.markAsRead(message.messageId)} disabled={message.isRead==1}>read</button>
 
 
                             </div>
